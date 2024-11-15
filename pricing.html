@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AI画廊 - 价格套餐</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+         :root {
+            --primary-color: #0FF4C6;
+            --secondary-color: #0A192F;
+            --accent-color: #00B4D8;
+            --bg-color: #0A1120;
+            --card-bg: #111827;
+            --text-primary: #E2E8F0;
+            --text-secondary: #94A3B8;
+            --gradient-1: linear-gradient(135deg, #0FF4C6, #00B4D8);
+            --neon-shadow: 0 0 20px rgba(15, 244, 198, 0.2);
+            --card-border: 1px solid rgba(15, 244, 198, 0.1);
+            --primary-rgb: 15, 244, 198;
+            /* 添加导航栏所需的变量 */
+            --nav-bg: rgba(10, 17, 32, 0.8);
+            --nav-border: 1px solid rgba(15, 244, 198, 0.1);
+            --login-text: var(--text-primary);
+            --login-border: var(--primary-color);
+            --login-hover-bg: var(--primary-color);
+            --login-hover-text: var(--bg-color);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            color: #fff;
+            line-height: 1.6;
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 80px auto 0;
+            padding: 2rem;
+        }
+        
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .pricing-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .pricing-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        .pricing-toggle {
+            background: var(--card-bg);
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: var(--card-border);
+            display: inline-flex;
+            gap: 0.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .toggle-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-button.active {
+            background: var(--gradient-1);
+            color: var(--bg-color);
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            padding: 1rem;
+        }
+        
+        .pricing-card {
+            background: var(--card-bg);
+            border: var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--neon-shadow);
+        }
+        
+        .pricing-card.popular {
+            border: 1px solid var(--primary-color);
+            position: relative;
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--gradient-1);
+            color: var(--bg-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .plan-name {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .plan-price {
+            font-size: 2.5rem;
+            color: var(--text-primary);
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+        
+        .plan-price small {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .plan-features {
+            margin-bottom: 2rem;
+        }
+        
+        .plan-features li {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-icon {
+            color: var(--primary-color);
+        }
+        
+        .select-plan-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .select-plan-btn.primary {
+            background: var(--gradient-1);
+            color: var(--bg-color);
+            border: none;
+        }
+        
+        .select-plan-btn.secondary {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .select-plan-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--neon-shadow);
+        }
+        
+        @media (max-width: 1024px) {
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+                margin: 0 auto;
+            }
+        }
+        /* 导航栏基础样式 */
+        
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--nav-border);
+            z-index: 1000;
+            height: 64px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        /* Logo 样式 */
+        
+        .logo {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: auto;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+        /* 导航链接样式 */
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .center-links {
+            display: flex;
+            gap: 3rem;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+        }
+        /* 登录按钮样式 */
+        
+        .login-btn {
+            color: var(--login-text);
+            font-weight: 500;
+            padding: 0.5rem 1.5rem;
+            border: 1.5px solid var(--login-border);
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            background: transparent;
+            cursor: pointer;
+        }
+        
+        .login-btn:hover {
+            background: var(--login-hover-bg);
+            color: var(--login-hover-text);
+            transform: translateY(-1px);
+            box-shadow: var(--neon-shadow);
+        }
+        /* 登录按钮动画 */
+        
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px rgba(0, 255, 213, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(0, 255, 213, 0.4);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(0, 255, 213, 0.2);
+            }
+        }
+        
+        .login-btn {
+            animation: glow 3s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-paint-brush"></i> AI画廊
+            </a>
+            <div class="nav-links">
+                <div class="center-links">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="pricing.html" class="nav-link active">Price</a>
+                    <a href="#" class="nav-link">Gallery</a>
+                    <a href="#" class="nav-link">About</a>
+                </div>
+            </div>
+            <button class="login-btn">登录</button>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="pricing-header">
+            <h1>选择适合您的套餐</h1>
+            <p>灵活的价格方案，满足您的创作需求</p>
+        </div>
+
+        <div class="pricing-toggle">
+            <button class="toggle-button active">月付方案</button>
+            <button class="toggle-button">年付方案</button>
+        </div>
+
+        <div class="pricing-grid">
+            <!-- 基础版 -->
+            <div class="pricing-card">
+                <h3 class="plan-name">基础版</h3>
+                <div class="plan-price">
+                    ¥99<small>/月</small>
+                </div>
+                <ul class="plan-features">
+                    <li>
+                        <span class="feature-icon">✓</span> 每月100次生成额度
+                    </li>
+                    <li>
+                        <span class="feature-icon">✓</span> 标准分辨率图片
+                    </li>
+                    <li>
+                        <span class="feature-icon">✓</span> 基础风格模型
+                    </li>
+                    <li>
+                        <span class="feature-icon">✓</span> 社区支持
+                    </li>
+                </ul>
+                <button class="select-plan-btn secondary">选择基础版</button>
+            </div>
+
+            <!-- 专业版 -->
+            <div class="pricing-card popular">
+                <div class="popular-badge">最受欢迎</div>
+                <h3 class="plan-name">专业版</h3>
+                <div class="plan-price">
+                    ¥199<small>/月</small>
+                </div>
+                <ul class="plan-features">
+                    <li>
+                        <span class="feature-icon">✓</span> 每月500次生成额度
+                    </li>
+                    <li>
+                        <span class="feature-icon">✓</span> 高清分辨率图片
+                    </li>
+                    <li>
+                        <span class="feature-icon">✓</span> 全部风格模型
+                    </li>
+                    <li>
+                        <span class="feature-icon">✓</span> 优先客服支
+                    </li>
+                    <li>
+                        <span class="feature-icon">✓</span> 批量生成功能
+                    </li>
+                </ul>
+                <button class="select-plan-btn primary">选择专业版</button>
+            </div>
+
+            <!-- 企业版 -->
+            <div class="pricing-card">
+                <h3 class="plan-name">企业版</h3>
+                <div class="plan-price">
+                    ¥599<small>/月</small>
+                </div>
+                <ul class="plan-features">
+                    <li>
+                        <span class="feature-icon">✓</span> 无限生成额度
+                    </li>
+                    <li>
+                        <span class="feature-icon">✓</span> 超高清分辨率
+                    </li>
+                    <li>
+                        <span class="feature-icon">✓</span> 专属模型定制
+                    </li>
+                    <li>
+                        <span class="feature-icon">✓</span> 24/7专人支持
+                    </li>
+                    <li>
+                        <span class="feature-icon">✓</span> API接口访问
+                    </li>
+                </ul>
+                <button class="select-plan-btn secondary">联系销售</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换月付/年付
+        const toggleButtons = document.querySelectorAll('.toggle-button');
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                toggleButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+            });
+        });
+    </script>
+</body>
+
+</html>

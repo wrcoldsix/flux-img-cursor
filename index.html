@@ -1,10 +1,1482 @@
-<html>
-<title>这是一个测试页面</title>
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AI图像生成器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+         :root {
+            --primary-color: #00ffd5;
+            --secondary-color: #111827;
+            --accent-color: #0ea5e9;
+            --bg-color: #030712;
+            --card-bg: #1a1f2e;
+            --text-primary: #E2E8F0;
+            --text-secondary: #94A3B8;
+            --text-title: #FFFFFF;
+            --text-subtitle: #CBD5E1;
+            --gradient-1: linear-gradient(135deg, #00ffd5, #0ea5e9);
+            --neon-shadow: 0 0 20px rgba(0, 255, 213, 0.2);
+            --card-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* 导航栏样式 */
+        
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--nav-border);
+            z-index: 1000;
+            height: 64px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: auto;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .center-links {
+            display: flex;
+            gap: 3rem;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+        }
+        
+        .login-btn {
+            color: var(--login-text);
+            font-weight: 500;
+            padding: 0.5rem 1.5rem;
+            border: 1.5px solid var(--login-border);
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+        
+        .login-btn:hover {
+            background: var(--login-hover-bg);
+            color: var(--login-hover-text);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
+        }
+        /* 添加动画效果 */
+        
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px rgba(0, 255, 213, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(0, 255, 213, 0.4);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(0, 255, 213, 0.2);
+            }
+        }
+        
+        .login-btn {
+            animation: glow 3s infinite;
+        }
+        /* 主容器样式 */
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 80px auto 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        /* 提示词输入区 */
+        
+        .prompt-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: var(--card-border);
+            padding: 2rem;
+            height: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .main-title {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.2px;
+            line-height: 1.5;
+        }
+        
+        .prompt-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .prompt-input-wrapper {
+            position: relative;
+            background: rgba(var(--primary-rgb), 0.03);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(var(--primary-rgb), 0.1);
+        }
+        
+        .prompt-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 1.25rem;
+            background: var(--bg-color);
+            border: 1px solid rgba(var(--primary-rgb), 0.2);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            resize: none;
+            transition: all 0.3s ease;
+        }
+        
+        .prompt-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+        }
+        
+        .prompt-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .prompt-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        
+        .generate-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 2rem;
+            background: var(--gradient-1);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .generate-btn i {
+            font-size: 1.1rem;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+        }
+        /* 生成中区域 */
+        
+        .generating-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .generating-card {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            background: transparent;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .placeholder-image {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #2A3441;
+            color: #94A3B8;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* 图片展示区 */
+        
+        .gallery-section {
+            background: var(--card-bg);
+            border: var(--card-border);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 100%;
+            height: 2px;
+            background: var(--gradient-1);
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .gallery-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        /* FAQ部分 */
+        
+        .faq-section {
+            margin-top: 2rem;
+            background: var(--card-bg);
+            border: var(--card-border);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+        
+        .faq-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .faq-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: var(--card-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+        
+        .faq-answer {
+            padding: 0 1.5rem;
+            color: var(--text-secondary);
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-item.active .faq-answer {
+            padding: 0 1.5rem 1.5rem;
+            max-height: 500px;
+        }
+        /* 页脚样式 */
+        
+        footer {
+            background: var(--secondary-color);
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        /* 滚动条美化 */
+        
+         ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: var(--gradient-1);
+            border-radius: 3px;
+        }
+        /* 文字选中效果 */
+        
+         ::selection {
+            background: var(--primary-color);
+            color: var(--bg-color);
+        }
+        /* 更新和添加新的样式 */
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .right-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-left: auto;
+        }
+        
+        .login-btn {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-1px);
+            text-shadow: 0 0 10px rgba(0, 255, 213, 0.5);
+        }
+        
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .theme-toggle:hover {
+            color: var(--primary-color);
+            transform: rotate(15deg);
+        }
+        /* 亮色主题变量 */
+        
+        [data-theme="light"] {
+            --primary-color: #14b8a6;
+            --secondary-color: #f8fafc;
+            --accent-color: #0d9488;
+            --bg-color: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --card-bg: #f8fafc;
+            --text-primary: #334155;
+            --text-secondary: #64748b;
+            --gradient-1: linear-gradient(135deg, #14b8a6, #0d9488);
+            --neon-shadow: 0 0 20px rgba(20, 184, 166, 0.2);
+            --card-border: 1px solid rgba(0, 0, 0, 0.05);
+            --nav-border: 1px solid rgba(0, 0, 0, 0.08);
+            --primary-rgb: 20, 184, 166;
+            --login-text: #14b8a6;
+            --login-hover-text: #ffffff;
+            --login-border: #14b8a6;
+            --login-hover-bg: #14b8a6;
+        }
+        /* 暗色主题变量保持不变 */
+        
+        [data-theme="dark"] {
+            --primary-color: #0FF4C6;
+            /* 更鲜艳青色 */
+            --secondary-color: #0A192F;
+            /* 深蓝背景 */
+            --accent-color: #00B4D8;
+            /* 明亮的蓝色 */
+            --bg-color: #0A1120;
+            /* 更深的背景色 */
+            --card-bg: #111827;
+            /* 卡片背景 */
+            --text-primary: #E2E8F0;
+            --text-secondary: #94A3B8;
+            --gradient-1: linear-gradient(135deg, #0FF4C6, #00B4D8);
+            --neon-shadow: 0 0 20px rgba(15, 244, 198, 0.2);
+            --card-border: 1px solid rgba(15, 244, 198, 0.1);
+            --nav-bg: rgba(10, 17, 32, 0.95);
+            --nav-border: 1px solid rgba(15, 244, 198, 0.1);
+            --primary-rgb: 15, 244, 198;
+        }
+        /* 导航链接下划线效果 */
+        
+        .nav-link:not(.login-btn)::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 1rem;
+            right: 1rem;
+            height: 2px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+            opacity: 0;
+            transform: scaleX(0);
+            transition: all 0.3s ease;
+        }
+        /* 添加输入框字数统计样式（可选） */
+        
+        .prompt-input-wrapper::after {
+            content: attr(data-length) ' / 500';
+            position: absolute;
+            bottom: 1rem;
+            left: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        /* 添加动画效果 */
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* 更新布局相关样式 */
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 80px auto 0;
+            padding: 2rem;
+        }
+        
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        /* 左侧提示区域样式 */
+        
+        .prompt-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: var(--card-border);
+            padding: 2rem;
+            height: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-header {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        
+        .main-title {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .prompt-input {
+            min-height: 200px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            padding: 1.25rem;
+        }
+        /* 右侧图片区域样式 */
+        
+        .image-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .generating-area {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: var(--card-border);
+            padding: 2rem;
+            height: fit-content;
+        }
+        
+        .generating-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .generating-card {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            background: transparent;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .placeholder-image {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #2A3441;
+            color: #94A3B8;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .loading {
+            display: none;
+        }
+        
+        .gallery-area {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: var(--card-border);
+            padding: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        /* 响应式调整 */
+        
+        @media (max-width: 1200px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .prompt-section {
+                position: static;
+            }
+            .generating-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+        /* 更新布局和样式 */
+        
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .right-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        /* 区域标题通用样式 */
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+        }
+        
+        .section-title i {
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
+        /* 生成区域样式 */
+        
+        .generating-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: var(--card-border);
+            padding: 1.5rem;
+        }
+        
+        .generating-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .generating-card {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            background: transparent;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .placeholder-image {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #2A3441;
+            color: #94A3B8;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .loading i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .loading span {
+            font-size: 0.9rem;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        /* 添加加载动画 */
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .loading i {
+            animation: spin 1.5s linear infinite;
+        }
+        /* 响应式调整 */
+        
+        @media (max-width: 768px) {
+            .generating-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .generating-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* 更新主容器样式 */
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 80px auto 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        /* 第一行的网格布局 */
+        
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        /* 推荐作品展示区域样式 */
+        
+        .showcase-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: var(--card-border);
+            padding: 2rem;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            /* 固定4列 */
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .showcase-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            background: transparent;
+            border: none;
+            transition: all 0.3s ease;
+            aspect-ratio: 1;
+            /* 保持正形 */
+        }
+        
+        .showcase-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.15);
+            border-color: rgba(var(--primary-rgb), 0.3);
+        }
+        
+        .showcase-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .showcase-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(to top, rgba(10, 17, 32, 0.95), rgba(10, 17, 32, 0));
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .showcase-item:hover .showcase-info {
+            transform: translateY(0);
+        }
+        
+        .showcase-info h3 {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .showcase-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        /* FAQ部分样式更新 */
+        
+        .faq-section {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: var(--card-border);
+            padding: 2rem;
+        }
+        /* 响应式调整 */
+        
+        @media (max-width: 768px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .showcase-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+        /* 添加霓虹效果 */
+        
+        .section-title i {
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(var(--primary-rgb), 0.5);
+        }
+        /* 响应式调整 */
+        
+        @media (max-width: 1200px) {
+            .showcase-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .showcase-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .showcase-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* 更新推荐作品区域样式 */
+        
+        .showcase-container {
+            position: relative;
+            width: 100%;
+            padding: 0 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .showcase-scroll {
+            width: 100%;
+            overflow: hidden;
+            /* 改为hidden以实现无缝滚动 */
+        }
+        
+        .showcase-grid {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: calc(25% - 1.125rem);
+            /* 确保一行显示4个 */
+            gap: 1.5rem;
+            transform: translateX(0);
+            will-change: transform;
+        }
+        
+        .showcase-item {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            background: transparent;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        /* 滚动按钮样式优化 */
+        
+        .scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid rgba(var(--primary-rgb), 0.2);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2;
+            opacity: 0.8;
+        }
+        
+        .scroll-btn:hover {
+            opacity: 1;
+            background: rgba(var(--primary-rgb), 0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.3);
+        }
+        
+        .scroll-left {
+            left: -20px;
+        }
+        
+        .scroll-right {
+            right: -20px;
+        }
+        /* 更新作品信息样式 */
+        
+        .showcase-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.75rem;
+            background: linear-gradient(to top, rgba(10, 17, 32, 0.95), rgba(10, 17, 32, 0));
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .showcase-info h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .showcase-info p {
+            font-size: 0.8rem;
+        }
+        /* 更新标题通用样式 */
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            border: none;
+        }
+        
+        .section-title {
+            font-size: 1.75rem;
+            color: var(--text-title);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+        
+        .section-subtitle {
+            font-size: 1rem;
+            color: var(--text-subtitle);
+            font-weight: normal;
+            opacity: 0.8;
+        }
+        /* 移除所有区域标题的边框和线条 */
+        
+        .generating-area .section-header,
+        .showcase-section .section-header,
+        .faq-section .section-header,
+        .gallery-section .section-header {
+            border: none;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        /* 确保标题和内容之间有适当的间距 */
+        
+        .generating-area .section-header,
+        .showcase-section .section-header,
+        .faq-section .section-header {
+            margin-bottom: 2rem;
+        }
+        /* 移除标题的装饰线 */
+        
+        .section-title::after,
+        .section-header::after,
+        .generating-area .section-header::after,
+        .showcase-section .section-header::after,
+        .faq-section .section-header::after,
+        .gallery-section .section-header::after {
+            display: none;
+            /* 移除所有标题下方的装饰线 */
+        }
+        /* 更新推荐作品区域的样式 */
+        
+        .showcase-item .placeholder-image {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        /* 悬浮效果优化 */
+        
+        .generating-card:hover .placeholder-image,
+        .showcase-item:hover .placeholder-image {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
 
 <body>
-    <h1>
-        这是一个测试页面
-    </h1>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-paint-brush"></i> AI Gallery
+            </div>
+            <div class="nav-links">
+                <div class="center-links">
+                    <a href="index.html" class="nav-link active">Home</a>
+                    <a href="pricing.html" class="nav-link">Price</a>
+                    <a href="#" class="nav-link">Gallery</a>
+                    <a href="#" class="nav-link">About</a>
+                </div>
+            </div>
+            <div class="right-links">
+                <a href="#" class="nav-link login-btn">Login</a>
+                <button class="theme-toggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="content-wrapper">
+            <section class="prompt-section">
+                <div class="section-header">
+                    <h1 class="main-title">Text to Image</h1>
+                    <p class="subtitle">Transform your imagination into stunning visuals</p>
+                </div>
+                <div class="prompt-container">
+                    <div class="prompt-input-wrapper">
+                        <textarea class="prompt-input" placeholder="Describe the image you want to create..."></textarea>
+                        <div class="prompt-actions">
+                            <button class="generate-btn">
+                                <i class="fas fa-wand-magic-sparkles"></i>
+                                Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="image-section">
+                <div class="generating-area">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-wand-magic-sparkles"></i> AI Generation
+                        </h2>
+                        <p class="section-subtitle">Creating multiple variations of your imagination</p>
+                    </div>
+                    <div class="generating-grid">
+                        <div class="generating-card">
+                            <div class="placeholder-image">
+                                <span>512 x 512</span>
+                            </div>
+                        </div>
+                        <div class="generating-card">
+                            <div class="placeholder-image">
+                                <span>512 x 512</span>
+                            </div>
+                        </div>
+                        <div class="generating-card">
+                            <div class="placeholder-image">
+                                <span>512 x 512</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-area">
+                    <h2 class="section-title">Generated Images</h2>
+                    <div class="gallery-grid">
+                        <!-- 图片项可以根据需要添加 -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section class="showcase-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-star"></i> Featured Artworks
+                </h2>
+                <p class="section-subtitle">Explore amazing creations from our community</p>
+            </div>
+
+            <div class="showcase-container">
+                <button class="scroll-btn scroll-left">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <div class="showcase-scroll">
+                    <div class="showcase-grid">
+                        <!-- 6个作品循环展示 -->
+                        <div class="showcase-item">
+                            <div class="placeholder-image">
+                                <span>256 x 256</span>
+                            </div>
+                            <div class="showcase-info">
+                                <h3>Cyberpunk City</h3>
+                                <p>By Alex Chen</p>
+                            </div>
+                        </div>
+
+                        <div class="showcase-item">
+                            <div class="placeholder-image">
+                                <span>256 x 256</span>
+                            </div>
+                            <div class="showcase-info">
+                                <h3>Space Explorer</h3>
+                                <p>By Sarah Miller</p>
+                            </div>
+                        </div>
+
+                        <div class="showcase-item">
+                            <div class="placeholder-image">
+                                <span>256 x 256</span>
+                            </div>
+                            <div class="showcase-info">
+                                <h3>Digital Dreams</h3>
+                                <p>By Mike Johnson</p>
+                            </div>
+                        </div>
+
+                        <div class="showcase-item">
+                            <div class="placeholder-image">
+                                <span>256 x 256</span>
+                            </div>
+                            <div class="showcase-info">
+                                <h3>Neon Nights</h3>
+                                <p>By Emma White</p>
+                            </div>
+                        </div>
+
+                        <div class="showcase-item">
+                            <div class="placeholder-image">
+                                <span>256 x 256</span>
+                            </div>
+                            <div class="showcase-info">
+                                <h3>Future World</h3>
+                                <p>By David Lee</p>
+                            </div>
+                        </div>
+
+                        <div class="showcase-item">
+                            <div class="placeholder-image">
+                                <span>256 x 256</span>
+                            </div>
+                            <div class="showcase-info">
+                                <h3>AI Symphony</h3>
+                                <p>By Lisa Wang</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="scroll-btn scroll-right">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <section class="faq-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-circle-question"></i> Frequently Asked Questions
+                </h2>
+                <p class="section-subtitle">Find answers to common questions about AI image generation</p>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What is AI image generation?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>AI image generation is a technology that uses artificial intelligence to create images from text descriptions. It employs advanced machine learning models trained on vast datasets to understand and visualize your text prompts.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How long does it take to generate an image?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Image generation typically takes 10-30 seconds per image. The exact time depends on the complexity of your prompt, the number of images being generated, and current server load.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What types of images can I create?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>You can create a wide variety of images including digital art, realistic photos, illustrations, landscapes, portraits, abstract art, and more. The system supports various styles and artistic directions.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How can I get better results?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>To get better results, try to be specific in your prompts. Include details about style, lighting, composition, and mood. You can also use artistic references and technical terms to guide the AI's output.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I edit the generated images?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, you can download the generated images and edit them using any image editing software. You can also use our built-in tools to regenerate variations or modify specific parts of the images.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2024 AI画廊 - 让创意触手可及</p>
+    </footer>
+
+    <script>
+        // FAQ交互逻辑
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const faqItem = question.parentElement;
+                const isActive = faqItem.classList.contains('active');
+
+                // 关闭其他打开的FAQ
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // 如果当前项未激活，则激活它
+                if (!isActive) {
+                    faqItem.classList.add('active');
+                }
+            });
+        });
+
+        // 页面滚动动画
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        });
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+
+        const themeToggle = document.querySelector('.theme-toggle');
+        const htmlElement = document.documentElement;
+        const themeIcon = themeToggle.querySelector('i');
+
+        // 检查本地存储中的主题设置
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        htmlElement.setAttribute('data-theme', currentTheme);
+        updateThemeIcon(currentTheme);
+
+        // 主题切换功能
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        // 更新主题图标
+        function updateThemeIcon(theme) {
+            themeIcon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+
+        // 添加滚动功能
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrollContainer = document.querySelector('.showcase-scroll');
+            const scrollLeftBtn = document.querySelector('.scroll-left');
+            const scrollRightBtn = document.querySelector('.scroll-right');
+            const scrollAmount = 600; // 每次滚动的距离
+
+            // 左滚动
+            scrollLeftBtn.addEventListener('click', () => {
+                scrollContainer.scrollBy({
+                    left: -scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+
+            // 右滚动
+            scrollRightBtn.addEventListener('click', () => {
+                scrollContainer.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+
+            // 检查滚动位置以显示/隐藏按钮
+            const checkScroll = () => {
+                const isAtStart = scrollContainer.scrollLeft === 0;
+                const isAtEnd = scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth;
+
+                scrollLeftBtn.style.opacity = isAtStart ? '0' : '1';
+                scrollRightBtn.style.opacity = isAtEnd ? '0' : '1';
+            };
+
+            scrollContainer.addEventListener('scroll', checkScroll);
+            window.addEventListener('resize', checkScroll);
+            checkScroll(); // 初始检查
+        });
+
+        // 更新滚动逻辑
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrollContainer = document.querySelector('.showcase-grid');
+            const scrollLeftBtn = document.querySelector('.scroll-left');
+            const scrollRightBtn = document.querySelector('.scroll-right');
+            const items = document.querySelectorAll('.showcase-item');
+
+            // 克隆所有项目并添加到开始和结束
+            items.forEach(item => {
+                // 在末尾添加克隆
+                const endClone = item.cloneNode(true);
+                scrollContainer.appendChild(endClone);
+
+                // 在开头添加克隆
+                const startClone = item.cloneNode(true);
+                scrollContainer.insertBefore(startClone, scrollContainer.firstChild);
+            });
+
+            let currentIndex = items.length; // 从真实的第一项开始
+            let isTransitioning = false;
+
+            function updateTransform(smooth = true) {
+                const itemWidth = items[0].offsetWidth + 24; // 项目宽度 + 间距
+                if (smooth) {
+                    scrollContainer.style.transition = 'transform 0.5s ease';
+                } else {
+                    scrollContainer.style.transition = 'none';
+                }
+                scrollContainer.style.transform = `translateX(${-currentIndex * itemWidth}px)`;
+            }
+
+            function slideRight() {
+                if (isTransitioning) return;
+                isTransitioning = true;
+                currentIndex++;
+                updateTransform();
+
+                // 检查是否需要重置位置
+                setTimeout(() => {
+                    if (currentIndex >= items.length * 2) {
+                        currentIndex = items.length;
+                        updateTransform(false);
+                    }
+                    isTransitioning = false;
+                }, 500);
+            }
+
+            function slideLeft() {
+                if (isTransitioning) return;
+                isTransitioning = true;
+                currentIndex--;
+                updateTransform();
+
+                // 检查是否需要重置位置
+                setTimeout(() => {
+                    if (currentIndex < items.length) {
+                        currentIndex = items.length * 2 - 1;
+                        updateTransform(false);
+                    }
+                    isTransitioning = false;
+                }, 500);
+            }
+
+            // 初始化位置
+            updateTransform(false);
+
+            // 事件监听
+            scrollLeftBtn.addEventListener('click', slideLeft);
+            scrollRightBtn.addEventListener('click', slideRight);
+
+            // 自动滚动
+            let autoScrollInterval = setInterval(slideRight, 5000);
+
+            // 鼠标悬停时暂停自动滚动
+            scrollContainer.addEventListener('mouseenter', () => {
+                clearInterval(autoScrollInterval);
+            });
+
+            scrollContainer.addEventListener('mouseleave', () => {
+                autoScrollInterval = setInterval(slideRight, 5000);
+            });
+
+            // 过渡结束时重置状态
+            scrollContainer.addEventListener('transitionend', () => {
+                isTransitioning = false;
+            });
+        });
+    </script>
 </body>
+
+</html>
 
 </html>
